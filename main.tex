@@ -189,7 +189,7 @@ Since $d < \log_b(a)$, we will get time tome complexity as  :-
 
 $$\mathcal{O}(k^{\log_b{a}}) = \mathcal{O}(k) = \mathcal{O}(n^2)$$ 
 
-Therefore, final time complexity of the algorithm comes out to be $$\mathcal{O}(n^2 + \mathcal{O}(n^2) = \mathcal{O}(n^2) $$
+Therefore, final time complexity of the algorithm comes out to be $$\mathcal{O}(n^2 + \mathcal{O}(n^2)) = \mathcal{O}(n^2) $$
 {\qed}
 
 
@@ -459,33 +459,72 @@ computes a schedule of minimum cost.
 
 \subsubsection{Sub Problem}
 
-$dp[i]$ is the optimal cost till $i$th week without considering company $C$ , and $dp_c[i]$ is the optimal cost till the $i^{th}$ week considering $C$
+$dp[i]$ is the optimal cost till $i$th week without considering company $C$ , and $dp'[i]$ is the optimal cost till the $i^{th}$ week considering $C$
 
 
 \subsubsection{Recurrence Relation}
+
 For the $0^{th}$ week, no products have been shipped, therefore 
-$dp[0] = dp_c[0] = 0$.
+$dp[0] = dp'[0] = 0$.
 
-For the first week, 
-
+We can't use $B$ for shipping until we know number of weeks $>$ 2. Therefore,
+For the first week,
+cost of shipping by $A$ is
 $$dp[1] = a s_1$$
-$$dp_c[1] = \min(c s_1 - d, dp[1])$$
+Minimum cost of shipping using either $A$ or $C$ is minimum of shipping cost by $A$ and shipping cost by $C$
+\begin{align*}
+dp'[1] = \min \Biggl(
+        \begin{array}{cc}
+             dp[1],  \\
+             c s_1 - d 
+        \end{array}
+        \Biggr) 
+\end{align*}
 
-For the second week, 
 
-$$dp[2] = dp_c[1] + a s_2$$
-$$dp_c[2] = \min(dp[2], dp[1] + c s_2 - d, dp[0] + c(s_2 + s_1) - 2 d)$$
+For the second week,
+Minimum cost of shipping by $A$ is minumum cost till last week $+$ cost shipping by $A$ in second week is 
+$$dp[2] = dp'[1] + a s_2$$
+
+Minimum of cost of shipping by either $A$ or $C$ is minimum of 
+cost of shipping by $A$ in week 2, minimum cost of shipping till week 1 $+$ cost of shipping by $C$ in week 2, minimum week of shipping by $C$ in 2 consecutive weeks 
+
+$$dp'[2] = \min 
+    \Biggl(
+        \begin{array}{cc}
+             dp[2], \\
+             dp[1] + c s_2 - d, \\
+             dp[0] + c (s_2 + s_1) - 2 d
+        \end{array}
+    \Biggr)
+$$
 
 From third week onwards, 
+Cost of shipping by $A$ will change slightly as now we can also ship by using $B$.
+Therefore, while calculating $A$ we will also take care of cost of shipping by $B$ in 3 consecutive weeks.\\
 
-$$dp[i] = \min(dp_c[i-1] + a s_i, dp_c[i-3] + 3b)$$
-$$dp_c[i] = \min(dp[i], dp[i-1] + c s_i - d, dp[i-2] + c(s_i + s_{i-1}) - 2 d)$$
+$$dp[i] = \min
+            \Biggl(
+            \begin{array}{c}
+                 dp'[i-1] + a s_i, \\
+                 dp'[i-3] + 3b
+            \end{array}
+            \Biggr)
+$$
 
+Calculation of $dp'$ will remain same\\
+$$dp'[i] = \min
+            \Biggl(
+            \begin{array}{c}
+                 dp[i], \\
+                 dp[i-1] + cs_i - d, \\
+                 dp[i-2] + c(s_i + s_{i-1}) - 2 d
+            \end{array}
+            \Biggr)
+$$
 \subsubsection{Sub Problem that will solve the original problem}
 
 $dp_c[n]$ will give us the minimum cost of shipping over $n$ weeks
-
-\pagebreak
 
 \subsubsection{Algorithm}
 
@@ -502,22 +541,22 @@ $dp_c[n]$ will give us the minimum cost of shipping over $n$ weeks
         \Require s $\leftarrow$ int[n] \Comment{number of items to be shipped in $i^{th}$ week}
 
         \State $dp \leftarrow$ int[n]
-        \State $dp_c \leftarrow$ int[n]
+        \State $dp' \leftarrow$ int[n]
         
 
-        \State $dp[0] = dp_c[0] = 0$.
+        \State $dp[0] = dp'[0] = 0$.
         \State $dp[1] = a s_1$
-        \State $dp_c[1] = \min(c s_1 - d, dp[1])$
-        \State $dp[2] = dp_c[1] + a s_2$
-        \State $dp_c[2] = \min(dp[2], dp[1] + c s_2 - d, dp[0] + c(s_2 + s_1) - 2 d)$
+        \State $dp'[1] = \min(c s_1 - d, dp[1])$
+        \State $dp[2] = dp'[1] + a s_2$
+        \State $dp'[2] = \min(dp[2], dp[1] + c s_2 - d, dp[0] + c(s_2 + s_1) - 2 d)$
 
         \For {i in range(3, n)}
-            \State $dp[i] = \min(dp_c[i-1] + a s_i, dp_c[i-3] + 3b)$
-            \State $dp_c[i] = \min(dp[i], dp[i-1] + c s_i - d, dp[i-2] + c(s_i + s_{i-1}) - 2 d)$
+            \State $dp[i] = \min(dp'[i-1] + a s_i, dp'[i-3] + 3b)$
+            \State $dp'[i] = \min(dp[i], dp[i-1] + c s_i - d, dp[i-2] + c(s_i + s_{i-1}) - 2 d)$
         
         \EndFor
         
-        \Return $dp_c[n]$
+        \Return $dp'[n]$
 
         
         
