@@ -27,6 +27,7 @@
 
 \newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
 \newcolumntype{N}{@{}m{0pt}@{}}
+\algnewcommand{\algorithmicand}{\textbf{ and }}
 
 
 \algnewcommand\algorithmicforeach{\textbf{for each}}
@@ -357,29 +358,184 @@ Since we are performing this opertation for every $i$, therefore our final time 
 
 \pagebreak
 
-% \subsection{\texorpdfstring{$\mathcal{O}(n\log(n))$}{Lg} approach}
+\subsection{\texorpdfstring{$\mathcal{O}(n\log(n))$}{Lg} approach}
 
-% \subsubsection{Pre Processing}
+\subsubsection{Pre Processing}
 
-% Let $L = [\{x_1, x_2\}]_n$ be the list of line segments where $x_1$ is the coordinate of the point at $y = 0$, and $x_2$ is the coordinate of the point at $y = 1$. 
+Let $L = [\{x_1, x_2\}]_n$ be the list of line segments where $x_1$ is the coordinate of the point at $y = 0$, and $x_2$ is the coordinate of the point at $y = 1$. 
 
-% Sort the given list of line segments w.r.t $x_1$ in decreasing order.
+Sort the given list of line segments w.r.t $x_1$ in decreasing order, and construct a list \\ $a[i] = [x_2$ for $\{x_1, x_2\}$ in $L]$ 
 
 
-% \subsubsection{Sub-problem}
+\subsubsection{Sub-problem}
 
-% $dp[i]$ stores smallest element for which an increasing subsequence of length $i$ exists. For example, for the array ${[6, 4, 5, 7, 1]}$, 
-% $dp[i] = [-\infty, 1, 5, 7, \infty, \dots]$
+$dp[i]$ stores smallest element for which an increasing subsequence of length $i$ exists. For example, for the array ${[6, 4, 5, 7, 1]}$, 
+$dp[i] = [-\infty, 1, 5, 7, \infty, \dots]$
 
-% Here, $\infty$ signifies that there isn't a increasing subsequence of length $i$
+Here, $\infty$ signifies that there isn't a increasing subsequence of length $i$
 
-% \subsubsection{Base Case}
+\subsubsection{Base Case}
 
-% $dp[i] = \infty $ $\forall i \in \{1, 2, 3, \dots n\}$ where n is total number of segments, and $dp[0] = -\infty$
+$dp[i] = \infty $ $\forall i \in \{1, 2, 3, \dots n\}$ where n is total number of segments, and $dp[0] = -\infty$
 
-% \subsubsection{Sub-problem which solves the original problem}
+\subsubsection{Sub-problem which solves the original problem}
 
-% The largest finite value in $dp[i]$ will give us the length of the longest increasing subsequence of the
+The value of $i$ for which $dp[i]$ is the largest finite number in the array, will give us the length of the longest increasing subsequence. Remember that $i$ gives us the length of the LIS and $dp[i]$ is the value at which the LIS of length $i$ ends.
+
+
+\subsubsection{Algorithm}
+
+\begin{algorithm}
+    \begin{algorithmic}[1]
+        \Require L $\leftarrow$ int[n][2] \Comment{Array of line segments in sorted order}
+        \Require a $\leftarrow$ int[n] \Comment{The same $a$ mentioned in pre processing}
+        \State $d \leftarrow$ int[n+1]
+        \State $d[0] = -\infty$
+        \State $d[i] = \infty$ $\forall i > 0$
+
+        \For {i in range(0, n)}
+            \State $l \leftarrow$ smallest value of $l$ such that $d[l] > a[i]$
+            \If {$d[l-1] < a[i]$ \and $a[i] < d[l]$}
+                \State $d[l] \leftarrow a[i]$
+            \EndIf
+            
+        \EndFor
+
+        \State ans $\leftarrow 0$
+        \For {$i$ in range(0, n+1)}
+            \If {$d[i] = \infty$}
+                \State \textbf{break}
+            \EndIf
+
+            \State ans $\leftarrow d[i]$
+        \EndFor
+    \end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Proof of Correctness}
+
+For any pair of lines $P_1(x_1, x_2), Q_1(x_3, x_4)$, where $x_1, x_3$ are the $x$-coordinates on $y = 0$ and $x_2, x_4$ are the $x$-coordinates on $y = 1$, they will only intersect if $(x_1 - x_3) \dot (x_2 - x_4) < 0$. In our case, we ensure that $x_1 - x_3 > 0$ by sorting the list of line segments in decreasing order. 
+
+Therefore, we only need to check for all pairs $(x_2, x_4)$ such that $x_2 < x_4$. In any increasing sequence $x_1, x_2, \dots x_k$, all the pair will mutually intersect. 
+
+This reduces our problem to finding the Longest Increasing Subsequence in an array where the line segmemnts are sorted in decreasing order by their point on $y = 0$ 
+
+
+
+\subsubsection{Time Complexity}
+
+Time complexity of sorting the array during preprocessing is $\mathcal{O}(n\log(n))$
+
+For finding the value of $l$ as shows in (5) of the algorithm, we notice that $d$ is always a non decreasing subarray. Therefore to find $l$ such that $d[l] > a[i]$, we can use binary search. Time complexity of the binary search comes out to be $\mathcal{O}(\log(n))$
+
+We iterating over the length of $a$ and performing binary search $\forall i$. Therefore, final complexity of the algorithm comes out to be $\mathcal{O}(n\log(n))$
+\qed
+
+\pagebreak
+
+\section{Shipments}
+
+\subsection{Problem}
+
+\begin{statement}
+    Suppose that an equipment manufacturing company manufactures $s_i$ units in the
+$i^{th}$ week. Each week’s production has to be shipped by the end of that week. Every week, one of the
+three shipping agents A, B and C are involved in shipping that week’s production and they charge
+in the following:
+\begin{itemize}
+    \item Company A charges $a$ rupees per unit.
+    \item  Company B charges $b$ rupees per week (irrespective of the number of units), but will only ship for a block of 3 consecutive weeks.
+    \item Company C charges $c$ rupees per unit but returns a reward of $d$ rupees per week, but will
+not ship for a block of more than 2 consecutive weeks. It means that if $s_i$ unit is shipped in
+the $i^{th}$ week through company C, then the cost for $i^{th}$ week will be $c s_i - d$.
+\end{itemize}
+The total cost of the schedule is the total cost to be paid to the agents. If $s_i$ unit is produced in the
+$i^{th}$ week, then $s_i$ unit has to be shipped in the $i^{th}$ week. Then, give an efficient algorithm that
+computes a schedule of minimum cost.
+\end{statement}
+
+
+\subsection{Proof}
+
+\subsubsection{Sub Problem}
+
+$dp[i]$ is the optimal cost till $i$th week without considering company $C$ , and $dp_c[i]$ is the optimal cost till the $i^{th}$ week considering $C$
+
+
+\subsubsection{Recurrence Relation}
+For the $0^{th}$ week, no products have been shipped, therefore 
+$dp[0] = dp_c[0] = 0$.
+
+For the first week, 
+
+$$dp[1] = a s_1$$
+$$dp_c[1] = \min(c s_1 - d, dp[1])$$
+
+For the second week, 
+
+$$dp[2] = dp_c[1] + a s_2$$
+$$dp_c[2] = \min(dp[2], dp[1] + c s_2 - d, dp[0] + c(s_2 + s_1) - 2 d)$$
+
+From third week onwards, 
+
+$$dp[i] = \min(dp_c[i-1] + a s_i, dp_c[i-3] + 3b)$$
+$$dp_c[i] = \min(dp[i], dp[i-1] + c s_i - d, dp[i-2] + c(s_i + s_{i-1}) - 2 d)$$
+
+\subsubsection{Sub Problem that will solve the original problem}
+
+$dp_c[n]$ will give us the minimum cost of shipping over $n$ weeks
+
+\pagebreak
+
+\subsubsection{Algorithm}
+
+\begin{algorithm}
+    \begin{algorithmic}
+        \Require a $\leftarrow$ int \Comment{ Cost of shipping of company A per unit}
+
+        \Require b $\leftarrow$ int \Comment{ Cost of shipping of company B per week}
+
+        \Require c $\leftarrow$ int \Comment{ Cost of shipping of company C per unit}
+
+        \Require d $\leftarrow$ int \Comment{Reward per week on shipping by company C}
+
+        \Require s $\leftarrow$ int[n] \Comment{number of items to be shipped in $i^{th}$ week}
+
+        \State $dp \leftarrow$ int[n]
+        \State $dp_c \leftarrow$ int[n]
+        
+
+        \State $dp[0] = dp_c[0] = 0$.
+        \State $dp[1] = a s_1$
+        \State $dp_c[1] = \min(c s_1 - d, dp[1])$
+        \State $dp[2] = dp_c[1] + a s_2$
+        \State $dp_c[2] = \min(dp[2], dp[1] + c s_2 - d, dp[0] + c(s_2 + s_1) - 2 d)$
+
+        \For {i in range(3, n)}
+            \State $dp[i] = \min(dp_c[i-1] + a s_i, dp_c[i-3] + 3b)$
+            \State $dp_c[i] = \min(dp[i], dp[i-1] + c s_i - d, dp[i-2] + c(s_i + s_{i-1}) - 2 d)$
+        
+        \EndFor
+        
+        \Return $dp_c[n]$
+
+        
+        
+    \end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Time Complexity}
+
+As we are iterating through the array only once, this means that the time complexity of our algorithm is $\mathcal{O}(n)$ where $n$ is the number of weeks 
+
+
+\section{Acknowledgements}
+
+\begin{itemize}
+    \item Dev Mittal - 2021038 for Q3
+    \item \href{https://cp-algorithms.com/sequences/longest_increasing_subsequence.html#solution-in-on-log-n-with-dynamic-programming-and-binary-search}{CP-Algorithms} for Question 2 $\mathcal{O}(n\log(n))$ solution
+\end{itemize}
+
 
 
 \end{document}
