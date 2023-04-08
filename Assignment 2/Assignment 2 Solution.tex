@@ -57,7 +57,6 @@
     }
 
 \title{ADA Assignment 2}
-% \author{Anirudh S. Kumar (2021517), Aakarsh Jain (2021507)}
 \author{
     \\\vspace{0em} Anirudh S. Kumar \\\vspace{-0.5em}
     \footnotesize{Roll Number - 2021517}\\\vspace{-0.5em}
@@ -111,7 +110,7 @@ a graph theoretic problem and explain how it can be solved in linear time.
 \subsubsection{Formulation as a graph problem}
 Consider the initial city as a graph $G(V, E)$ with intersections as nodes and streets as edges between them as shown in Fig \ref{fig:undirected}.
 
-More formally, any intersection ${\textrm{\textbf{int}}}_i \in V(G)$, and $({\textrm{\textbf{int}}}_i, {\textrm{\textbf{int}}}_j) \in E(G)$ there is a road connecting intersections ${\textrm{\textbf{int}}}_i$ and ${\textrm{\textbf{int}}}_j$
+More formally, any intersection ${\textrm{\textbf{int}}}_i \in V(G)$, and $({\textrm{\textbf{int}}}_i, {\textrm{\textbf{int}}}_j) \in E(G)$ if there is a road connecting intersections ${\textrm{\textbf{int}}}_i$ and ${\textrm{\textbf{int}}}_j$
 
 \begin{figure}[ht]
 \centering
@@ -199,7 +198,7 @@ Now, the police turning all the streets to one-way means converting all the undi
         \alVis $\leftarrow$ boolean array of size $|V(G)|$, and initialize all to \alF \;
         pick any arbitrary node $\textrm{\textbf{int}}_i \in V(G)$ \;
         perform DFS with $\textrm{\textbf{int}}_i$ as the starting node \;
-        set $vis_j$ = \textbf{true} if $\textrm{\textbf{int}}_j$ is visited in the DFS $\forall \textrm{\textbf{ int}}_j \in V(G)$\;
+        set \texttt{visited[j]} $ = vis_j$ = \textbf{true} if $\textrm{\textbf{int}}_j$ is visited in the DFS $\forall \textrm{\textbf{ int}}_j \in V(G)$\;
         \For{$vis_i$ \alIn \alVis}{
             \If{$vis_i = $ \alF}{
                 \Return \textcolor{red}{false} \tcp{In case any node is not visited}
